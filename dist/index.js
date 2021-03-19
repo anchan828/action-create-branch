@@ -2976,8 +2976,8 @@ const create_branch_1 = __webpack_require__(822);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const branch = core.getInput('branch');
-            const from = core.getInput('from');
+            const branch = core.getInput("branch", { required: true });
+            const from = core.getInput("from", { required: false });
             core.debug(`Creating branch ${branch}`);
             yield create_branch_1.createBranch(github_1.GitHub, github_1.context, branch, from);
         }
