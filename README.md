@@ -16,4 +16,5 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 with:
   branch: 'release-notes'
+  from: 'develop'
 ```

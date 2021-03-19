@@ -1,36 +1,48 @@
 import { Context } from "@actions/github/lib/context";
 import { GitHub } from "@actions/github";
 
-export async function createBranch(github: any, context: Context, branch: string) {
-  const toolkit : GitHub = new github(githubToken());
-    let branchExists;
-    // Sometimes branch might come in with refs/heads already
-    branch = branch.replace('refs/heads/', '');
-    
-    // throws HttpError if branch already exists.
-    try {
-      await toolkit.repos.getBranch({
-        ...context.repo,
-        branch
-      })
+export async function createBranch(
+  github: any,
+  context: Context,
+  branch: string,
+  from?: string
+) {
+  const toolkit: GitHub = new github(githubToken());
+  // Sometimes branch might come in with refs/heads already
+  branch = branch.replace("refs/heads/", "");
+  let sha = context.sha;
+  if (from) {
+    from = from.replace("refs/heads/", "");
+    const fromBranch = await toolkit.repos.getBranch({
+      ...context.repo,
+      branch: from,
+    });
+    sha = fromBranch.data.commit.sha;
+  }
 
-      branchExists = true;
-    } catch(error) {
-      if(error.name === 'HttpError' && error.status === 404) {
-        await toolkit.git.createRef({
-          ref: `refs/heads/${branch}`,
-          sha: context.sha,
-          ...context.repo
-        })
-      } else {
-        throw Error(error)
-      }
+  // throws HttpError if branch already exists.
+  try {
+    await toolkit.repos.getBranch({
+      ...context.repo,
+      branch,
+    });
+
+  } catch (error) {
+    if (error.name === "HttpError" && error.status === 404) {
+      await toolkit.git.createRef({
+        ref: `refs/heads/${branch}`,
+        sha,
+        ...context.repo,
+      });
+    } else {
+      throw Error(error);
     }
+  }
 }
 
 function githubToken(): string {
   const token = process.env.GITHUB_TOKEN;
   if (!token)
-    throw ReferenceError('No token defined in the environment variables');
+    throw ReferenceError("No token defined in the environment variables");
   return token;
 }

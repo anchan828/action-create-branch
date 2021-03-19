@@ -1,13 +1,16 @@
 name: 'Create Branch'
 description: 'Creates a branch'
-author: 'Peter Grainger (peter@grainger)'
+author: 'anchan828 (anchan828@gmail.com)'
 branding:
   icon: 'git-branch' 
   color: 'green'
 inputs:
   branch:
     description: 'The branch to create'
-    default: 'release-candidate'
+    required: true
+  from:
+    description: 'The branch to use as base'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
